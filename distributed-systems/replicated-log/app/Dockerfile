@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["python", "app/api.py"]
+ENTRYPOINT ["python", "api.py"]

@@ -2,31 +2,34 @@ version: '3'
 
 services:
   app1:
-    build: .
+    build: ./app
     ports:
       - "8000:8000"
     environment:
-      - IS_MASTER=True
-      - SERVERS=app2:8001,app3:8002
+      - IS_MASTER=1
       - APP_PORT=8000
     networks:
       - app-network
   app2:
-    build: .
+    build: ./app
     ports:
       - "8001:8000"
     environment:
-      - IS_MASTER=False
+      - IS_MASTER=0
       - APP_PORT=8001
     networks:
       - app-network
   app3:
-    build: .
+    build: ./app
     ports:
       - "8002:8000"
     environment:
-      - IS_MASTER=False
+      - IS_MASTER=0
       - APP_PORT=8002
+    networks:
+      - app-network
+  fake_input:
+    build: ./fake_input
     networks:
       - app-network
 
