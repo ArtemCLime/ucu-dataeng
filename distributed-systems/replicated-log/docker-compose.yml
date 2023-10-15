@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  app1:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - IS_MASTER=True
+      - SERVERS=app2:8001,app3:8002
+      - APP_PORT=8000
+    networks:
+      - app-network
+  app2:
+    build: .
+    ports:
+      - "8001:8000"
+    environment:
+      - IS_MASTER=False
+      - APP_PORT=8001
+    networks:
+      - app-network
+  app3:
+    build: .
+    ports:
+      - "8002:8000"
+    environment:
+      - IS_MASTER=False
+      - APP_PORT=8002
+    networks:
+      - app-network
+
+networks:
+  app-network:
