@@ -7,3 +7,6 @@ class MessageLog:
 
     def get_all_messages(self):
         return self.messages
+
+    def clean(self):
+        self.messages = []

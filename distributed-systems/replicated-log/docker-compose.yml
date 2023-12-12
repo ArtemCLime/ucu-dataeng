@@ -17,6 +17,8 @@ services:
     environment:
       - IS_MASTER=0
       - APP_PORT=8001
+      - IS_BROKEN=1
+      - NAME=app2
     networks:
       - app-network
   app3:
@@ -26,6 +28,8 @@ services:
     environment:
       - IS_MASTER=0
       - APP_PORT=8002
+      - IS_BROKEN=1
+      - NAME=app3
     networks:
       - app-network
   fake_input:
