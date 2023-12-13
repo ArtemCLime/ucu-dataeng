@@ -1,7 +1,11 @@
 import requests
 import random
 from time import sleep
+import datetime
 
+
+def timeit():
+    return datetime.datetime.now()
 
 class RandomMessageSender:
     def __init__(self, url):
@@ -11,7 +15,7 @@ class RandomMessageSender:
         for message in messages:
             message = {"message": message, "write_concern": write_concern}
             response = requests.post(self.url, params=message)
-            print(response.text)
+            print(f"[INFO] [{timeit()}] {response.text}")
 
     def get_messages(self):
         response = requests.get(self.url)
@@ -54,7 +58,7 @@ if __name__ == "__main__":
     # Wait a little bit for the server to start
     sleep(3)
     # Wait for all servers to replicate
-    run_test(write_concern=3)
+    run_test(write_concern=2)
     # # Wait for master and 1 secondary to replicate
     # run_test(write_concern=2)
     # # Wait for master to replicate
