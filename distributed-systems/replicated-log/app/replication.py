@@ -1,9 +1,16 @@
-import requests
 import gevent
-import logging
-from tenacity import retry
+from gevent import monkey
 
-logger = logging.getLogger(__name__)
+monkey.patch_all()
+import requests
+import logging
+from tenacity import retry, wait_exponential, before_sleep_log
+from utils import timeit
+import sys
+
+from logger import get_logger
+
+logger = get_logger()
 
 
 class ReplicationHandler:
@@ -14,28 +21,24 @@ class ReplicationHandler:
     def replicate(self, message, write_concern):
         if not self.is_master:
             return
-        if write_concern == 1:
-            return True
-        
-        jobs = [gevent.spawn(self._replicate, message, server) for server in self.servers]
+        jobs = [
+            gevent.spawn(self._replicate, message, server) for server in self.servers
+        ]
 
-        with gevent.iwait(jobs) as it:
-            for i in it:
-                if (i.exception is None) and (i.value):
-                    write_concern -= 1
-                if write_concern == 1:
-                    return True
+        # Wait for all servers to replicate
+        done_jobs = gevent.wait(jobs, count=write_concern - 1)
+        if done_jobs:
+            logger.info(f"[{timeit()}] [DONE] Done jobs {done_jobs}")
+            return True
         return False
-                
+
     @retry(wait=wait_exponential(multiplier=1, min=4, max=10))
     def _replicate(self, message, server):
         url = f"http://{server['host']}:{server['port']}/replicate"
-        params = {"message": message}
-        return self.parse_response(requests.post(url, params=params))
-
-    def parse_response(self, response):
-        if (not response) or response.status_code != 200:
-            print(f"Failed to replicate message to {response.url}")
-            raise Exception(f"Failed to replicate message to {response.url}")
-        else:
-            return True
+        params = message.to_json()
+        response = requests.post(url, params=params, timeout=1)
+        response.raise_for_status()
+        logger.info(
+            f"[SERVER] [{timeit()}] Server {server['host']}:{server['port']} replicated message {message}"
+        )
+        return True

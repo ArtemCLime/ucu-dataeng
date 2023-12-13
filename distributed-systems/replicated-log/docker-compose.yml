@@ -28,7 +28,6 @@ services:
     environment:
       - IS_MASTER=0
       - APP_PORT=8002
-      - IS_BROKEN=1
       - NAME=app3
     networks:
       - app-network
