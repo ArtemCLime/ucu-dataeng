@@ -28,6 +28,15 @@ def get_log():
     return {"log": log.get_all_messages()}
 
 
+# GET  Method: Health check
+@app.get("/health")
+def get_health():
+    # Health check might be broken too.
+    if config.IS_BROKEN:
+        breaker.break_server(config.NAME)
+    return {"msg": "OK"}
+
+
 @app.delete("/log")
 def clean_log():
     log.clean()
